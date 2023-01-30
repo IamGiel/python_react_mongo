@@ -6,9 +6,10 @@ TODOS:
 4. Keep the user token, so that a refresh wont logout user
 5. error route /error -> show error state
 
-To run:
+### To run (backend):
 
-1. create env file inside python-server
+1. cd into python-server
+2. create env file inside python-server
 
     ``` #------FOR LINUX/MAC---------#
         #installing venv 
@@ -29,5 +30,14 @@ To run:
         
     ```
 
-2. `pip install -r requirements.txt` 
-3. (should install all dependencies)
+3. `pip install -r requirements.txt` 
+4. (should install all dependencies)
+
+### To run (client):
+
+1. cd client
+2. `npm install` 
+3. `npm start`
+4. react runs it
+
+
