@@ -1,0 +1,28 @@
+{
+    "post": [
+        {
+            "assigned": {
+                "name": "string",
+                "value": "string",
+                "avatar": "string"
+            },
+            "labelled": {
+                "name": "string",
+                "value": "string"
+            },
+            "_id": "string",
+            "title": "string",
+            "description": "string",
+            "postedBy": {
+                "_id": "string",
+                "name": "string",
+                "email": "string"
+            },
+            "imageURL": "string",
+            "imageTitle": "string",
+            "date": "string",
+            "profilePic": "string",
+            "__v": 0
+        }
+    ]
+}

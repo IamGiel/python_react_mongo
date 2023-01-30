@@ -1,0 +1,18 @@
+{
+    
+    "user": { 
+        "user":{
+        "_id": null,
+        "name": null,
+        "email": null,
+        "password": null,
+        "imageUrl": null,
+        "__v": null
+    },
+    "status": "string",
+    "isLoggedIn": false
+    }
+
+}
+
+
