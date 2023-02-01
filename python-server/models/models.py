@@ -1,21 +1,10 @@
 import uuid
-from typing import Optional, Any
+import base64
+
+from typing import Optional, Any, List
 from pydantic import BaseModel, Field, constr
-
+from uuid import UUID
 from bson.objectid import ObjectId as BsonObjectId
-
-
-class PydanticObjectId(BsonObjectId):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        if not isinstance(v, BsonObjectId):
-            raise TypeError('ObjectId required')
-        return str(v)
-
 
 class Book(BaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias='_id')
@@ -47,18 +36,8 @@ class BookUpdate(BaseModel):
                 "synopsis": "Don Quixote is a Spanish novel by Miguel de Cervantes..."
             }
         }   
-            
-class TokenSchema(BaseModel):
-    access_token: str
-    refresh_token: str
-    
-    
-class TokenPayload(BaseModel):
-    sub: str = None
-    exp: int = None
-    
+  
 class User(BaseModel):
-    # _id: PydanticObjectId()
     name:str = Field(...)
     email:str = Field(...)
     password:str = Field(...)
@@ -84,14 +63,50 @@ class User(BaseModel):
             }
         }
     
-    
 class UserOut(BaseModel):
     email: str = Field(..., description="email")
-    name: str = Field(..., description="username")
-
+    name: Optional[str] = Field(..., description="username")
 
 class SystemUser(UserOut):
-    password: str   
+    password: str
+    access_token: Optional[str]
+    refresh_token:Optional[str]
+    
+    class Config:
+        allow_population_field_name = True
+        schema_extra = {
+            "example": {
+                # "_id": "1233-123333",
+                "name":"Jo Jo Man",
+                "email":"jj@mailer.com",
+                "password":"123myman",
+                "access_token":"expireThistoken30minutes",
+                "refresh_token":"expireThistoken7days"
+            }
+        }
+        
+class TokenSchema(BaseModel):
+    access_token: str
+    refresh_token: str
+    
+    
+class TokenPayload(BaseModel):
+    sub: str = None
+    exp: int = None
+
+
+class UserAuth(BaseModel):
+    email: str = Field(..., description="user email")
+    password: str = Field(..., min_length=5, max_length=24, description="user password")
+    
+
+class UserOut2(BaseModel):
+    id: UUID
+    email: str
+
+
+class SystemUser2(UserOut):
+    password: str
 
 
 

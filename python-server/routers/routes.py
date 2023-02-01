@@ -6,7 +6,7 @@ from typing import List
 from models.models import Book, BookUpdate
 from dependencies.dependencies import get_token_header
 
-from config.database import TEST_DB
+from config.database import ATLAS
 
 router = APIRouter(
     prefix="/books",
@@ -26,7 +26,7 @@ def create_book(request: Request, book: Book = Body(...)):
 
 @router.get("/all-books", response_description="List all books", response_model=List[Book])
 def list_books(request: Request):
-    books = list(TEST_DB.db["books"].find(limit=100))
+    books = list(ATLAS.instagram["books"].find(limit=100))
     if(books):
         return books
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"SOME ERROR on list all books")
