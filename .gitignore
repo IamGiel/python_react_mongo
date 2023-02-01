@@ -3,7 +3,6 @@
 # dependencies\
 
 **/.env
-**/.env
 **/node_modules
 **/__pycache__
 env

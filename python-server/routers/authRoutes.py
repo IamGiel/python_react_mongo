@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Request, HTTPException, status, Depends, Header
+from fastapi import APIRouter, Body, Request, Response, HTTPException, status, Depends, Header
 from typing import Union
 from fastapi.encoders import jsonable_encoder
 from typing import List
@@ -62,7 +62,7 @@ def register_user(user: User = Body(...)):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="User is not created")
 
 @authroute.post("/signin", response_description="Signin a new user", status_code=status.HTTP_201_CREATED, response_model=SystemUser)
-async def sign_in_user(form_data: OAuth2PasswordRequestForm = Depends()):
+async def sign_in_user(response: Response, form_data: OAuth2PasswordRequestForm = Depends()):
     user = ATLAS.instagram['users'].find_one(
         {"email":form_data.username}
     )
@@ -75,13 +75,60 @@ async def sign_in_user(form_data: OAuth2PasswordRequestForm = Depends()):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Please check user credentials")
 
     print(f"user is authenticated!")
-    return {
-        "access_token": create_access_token(user['email'], timedelta(minutes=30)),
-        "refresh_token": create_refresh_token(user['email'], timedelta(days=7)),
-        "name":user["name"],
-        "email":user["email"],
-        "password":""
-    }
+    accTok =  create_access_token(user['email'], timedelta(minutes=30))
+    refTok = create_refresh_token(user['email'], timedelta(days=7))
+    try:
+        response.set_cookie('access_token',accTok, timedelta(minutes=30))
+        response.set_cookie('refresh_token',refTok, timedelta(days=7))
+        response.set_cookie('is_loggedin',True, timedelta(minutes=30))
+    except Exception as err:
+        print(f'Other error occurred: {err}')
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"{err}")
+    else:
+
+        return {
+            "access_token": accTok,
+            "refresh_token": refTok,
+            "name":user["name"],
+            "email":user["email"],
+            "password":""
+        }
+
+@authroute.post("/refresh", response_description="Refresh token", status_code=status.HTTP_201_CREATED)
+def refresh_token(response: Response, Authorize: AuthJWT = Depends()):
+    try:
+        Authorize.jwt_refresh_token_required()
+        user_email = Authorize.get_jwt_subject()
+        if not user_email:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail='Could not refresh access token')
+        user = ATLAS.instagram["users"].find_one(
+                {"email":f'{user_email}'.lower()}
+            )
+        if not user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail='The user belonging to this token no logger exist')
+        accTok =  create_access_token(user['email'], timedelta(minutes=30))
+    
+    except Exception as e:
+        error = e.__class__.__name__
+        if error == 'MissingTokenError':
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail='Please provide refresh token')
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=error)
+        
+    response.set_cookie('access_token',accTok, timedelta(minutes=30))
+    response.set_cookie('is_loggedin',True, timedelta(minutes=30))
+    return {'access_token': accTok}
+
+
+@authroute.get('/logout', status_code=status.HTTP_200_OK)
+def logout(response: Response):
+    response.delete_cookie('refresh_token')
+    response.delete_cookie('access_token')
+    response.set_cookie('is_loggedin', False, -1)
+    return {'status': 'success'}
 
 @authroute.put("/user-account-by/{email}", response_description="Update a new user", status_code=status.HTTP_201_CREATED, response_model=User)
 def update_user_info(email:str, requests:Request, user_payload: User = Body(...), Authorize: AuthJWT = Depends()):
