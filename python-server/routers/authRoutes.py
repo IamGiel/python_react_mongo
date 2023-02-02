@@ -10,7 +10,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 
 # from replit import db
-from utils.utils import get_hashed_password, verify_password, create_access_token, create_refresh_token
+from utils.utils import get_hashed_password, verify_password, create_access_token, create_refresh_token, get_current_user
 from uuid import uuid4
 
 from config.database import ATLAS
@@ -22,9 +22,9 @@ authroute = APIRouter(
 )
 
 @authroute.get('/users', response_description="get users", response_model=List[User])
-async def get_all_users(request: Request):
+async def get_all_users(request: Request, current_user: int = Depends(get_current_user)):
     list_of_users = list(ATLAS.instagram["users"].find(limit=100))
-    print(f">>>>> list_of_users >>>>>> {list_of_users}")
+    print(f"current_user {current_user}")
     if list_of_users:
         return list_of_users
     else:
@@ -75,12 +75,12 @@ async def sign_in_user(response: Response, form_data: OAuth2PasswordRequestForm 
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Please check user credentials")
 
     print(f"user is authenticated!")
-    accTok =  create_access_token(user['email'], timedelta(minutes=30))
-    refTok = create_refresh_token(user['email'], timedelta(days=7))
+    accTok =  create_access_token(data={"email":user['email']})
+    refTok = create_refresh_token(data={"email":user['email']})
     try:
-        response.set_cookie('access_token',accTok, timedelta(minutes=30))
-        response.set_cookie('refresh_token',refTok, timedelta(days=7))
-        response.set_cookie('is_loggedin',True, timedelta(minutes=30))
+        response.set_cookie('access_token',accTok)
+        response.set_cookie('refresh_token',refTok)
+        response.set_cookie('is_loggedin',True)
     except Exception as err:
         print(f'Other error occurred: {err}')
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"{err}")
