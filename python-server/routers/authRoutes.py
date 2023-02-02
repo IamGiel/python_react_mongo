@@ -97,7 +97,7 @@ async def sign_in_user(response: Response, form_data: OAuth2PasswordRequestForm 
         }
 
 @authroute.post("/refresh", response_description="Refresh token", status_code=status.HTTP_201_CREATED)
-def refresh_token(response: Response, Authorize: AuthJWT = Depends()):
+def refresh_token(response: Response,current_user: int = Depends(get_current_user), Authorize: AuthJWT = Depends()):
     try:
         Authorize.jwt_refresh_token_required()
         user_email = Authorize.get_jwt_subject()
@@ -126,14 +126,14 @@ def refresh_token(response: Response, Authorize: AuthJWT = Depends()):
 
 
 @authroute.get('/logout', status_code=status.HTTP_200_OK)
-def logout(response: Response):
+def logout(response: Response, current_user: int = Depends(get_current_user)):
     response.delete_cookie('refresh_token')
     response.delete_cookie('access_token')
     response.set_cookie('is_loggedin', False, -1)
     return {'status': 'success'}
 
 @authroute.put("/user-account-by/{email}", response_description="Update a new user", status_code=status.HTTP_201_CREATED, response_model=User)
-def update_user_info(email:str, requests:Request, user_payload: User = Body(...), Authorize: AuthJWT = Depends()):
+def update_user_info(email:str, current_user: int = Depends(get_current_user), user_payload: User = Body(...), Authorize: AuthJWT = Depends()):
     access_token = Authorize.create_access_token(subject=user_payload["email"])
     # user_payload = jsonable_encoder(user_payload)
     Authorize.jwt_required()
