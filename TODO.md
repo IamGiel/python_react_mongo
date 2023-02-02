@@ -30,7 +30,7 @@ TODOS:
         
     ```
 
-3. `pip install -r requirements.txt` 
+3. `pip install -r requirements.txt` `pip-chill > requirements.txt`
 4. (should install all dependencies)
 
 ### To run (client):

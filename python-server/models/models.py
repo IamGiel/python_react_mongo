@@ -1,6 +1,6 @@
 import uuid
 import base64
-
+from enum import Enum
 from typing import Optional, Any, List
 from pydantic import BaseModel, Field, constr
 from uuid import UUID
@@ -37,6 +37,13 @@ class BookUpdate(BaseModel):
             }
         }   
   
+
+class Roles(str, Enum):
+    admin  = 'admin'
+    user = 'user'
+    other = 'other'
+    not_given = 'not_given'
+    
 class User(BaseModel):
     name:str = Field(...)
     email:str = Field(...)
@@ -46,6 +53,7 @@ class User(BaseModel):
     created_at:str = Field(...)
     updated_at:str = Field(...)
     verified: bool = False
+    roles:Optional[List[Roles]] = None
     
     class Config:
         allow_population_field_name = True
@@ -59,7 +67,8 @@ class User(BaseModel):
                 "imageUrl":"http://myman.png",
                 "created_at":"2023-01-28T23:21:08.799Z",
                 "updated_at":"2023-01-28T23:21:08.799Z",
-                "verified":False
+                "verified":False,
+                "roles":["admin", "user"]
             }
         }
     
