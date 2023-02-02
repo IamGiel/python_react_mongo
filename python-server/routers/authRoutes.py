@@ -8,12 +8,11 @@ from datetime import datetime, timedelta
 
 from fastapi.security import OAuth2PasswordRequestForm
 
-
-# from replit import db
 from utils.utils import get_hashed_password, verify_password, create_access_token, create_refresh_token, get_current_user
 from uuid import uuid4
 
 from config.database import ATLAS
+from bson.json_util import loads, dumps
 
 authroute = APIRouter(
     prefix="/user-auth",
@@ -74,9 +73,12 @@ async def sign_in_user(response: Response, form_data: OAuth2PasswordRequestForm 
         print(f"user is NOT authenticated!")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Please check user credentials")
 
-    print(f"user is authenticated!")
-    accTok =  create_access_token(data={"email":user['email']})
-    refTok = create_refresh_token(data={"email":user['email']})
+    print(f"user is authenticated! {user}")
+    userdata = dumps(user)
+    accTok =  create_access_token(data={"userObj":userdata})
+    refTok = create_refresh_token(data={"userObj":userdata})
+    # accTok =  create_access_token(data={"email":user['email']})
+    # refTok = create_refresh_token(data={"email":user['email']})
     try:
         response.set_cookie('access_token',accTok)
         response.set_cookie('refresh_token',refTok)

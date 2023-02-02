@@ -49,13 +49,13 @@ def verify_access_token(token: str, credentials_exception):
 
     try:
 
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("email")
-        if email is None:
-            raise credentials_exception
-        token_data = payload
+      payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+      is_valid_user: str = payload.get("userObj")
+      if is_valid_user is None:
+          raise credentials_exception
+      token_data = payload
     except JWTError:
-        raise credentials_exception
+      raise credentials_exception
 
     return token_data
 
@@ -65,6 +65,6 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
                                           detail=f"Could not validate credentials", headers={"WWW-Authenticate": "Bearer"})
 
     token = verify_access_token(token, credentials_exception)
-
+    print(f"returning a token {token}")
 
     return token
