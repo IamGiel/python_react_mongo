@@ -117,6 +117,30 @@ class UserOut2(BaseModel):
 class SystemUser2(UserOut):
     password: str
 
+# TESTING MODELS
+class Labelled(BaseModel):
+    name:str = Field(...)
+    value:str = Field(...)
+    avatar:str = Field(...)
+
+
+class Assigned(Labelled):
+    name:str = Field(...)
+    value:str = Field(...)
+    
+class Post(BaseModel):
+    title:str = Field(...)
+    description:str = Field(...)
+    postedBy: Optional[User]
+    imageURL: str = Field(...)
+    imageTitle: str = Field(...)
+    date: str = Field(...)
+    assigned:Optional[Assigned]
+    labelled:Optional[Labelled]
+    profilePic:str = Field(...)
+
+
+
 
 
 
