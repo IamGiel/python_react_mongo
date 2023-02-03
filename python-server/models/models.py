@@ -6,7 +6,11 @@ from pydantic import BaseModel, Field, constr
 from uuid import UUID
 from bson.objectid import ObjectId as BsonObjectId
 
-class Book(BaseModel):
+class OurBaseModel(BaseModel):
+    class Config:
+        orm_mode = True
+
+class Book(OurBaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias='_id')
     title: str = Field(...)
     author: str = Field(...)
@@ -23,7 +27,7 @@ class Book(BaseModel):
                 }
             }
             
-class BookUpdate(BaseModel):
+class BookUpdate(OurBaseModel):
     title:Optional[str]
     author:Optional[str]
     synopsis:Optional[str]
@@ -44,7 +48,7 @@ class Roles(str, Enum):
     other = 'other'
     not_given = 'not_given'
     
-class User(BaseModel):
+class User(OurBaseModel):
     name:str = Field(...)
     email:str = Field(...)
     password:str = Field(...)
@@ -72,7 +76,7 @@ class User(BaseModel):
             }
         }
     
-class UserOut(BaseModel):
+class UserOut(OurBaseModel):
     email: str = Field(..., description="email")
     name: Optional[str] = Field(..., description="username")
 
@@ -94,22 +98,22 @@ class SystemUser(UserOut):
             }
         }
         
-class TokenSchema(BaseModel):
+class TokenSchema(OurBaseModel):
     access_token: str
     refresh_token: str
     
     
-class TokenPayload(BaseModel):
+class TokenPayload(OurBaseModel):
     sub: str = None
     exp: int = None
 
 
-class UserAuth(BaseModel):
+class UserAuth(OurBaseModel):
     email: str = Field(..., description="user email")
     password: str = Field(..., min_length=5, max_length=24, description="user password")
     
 
-class UserOut2(BaseModel):
+class UserOut2(OurBaseModel):
     id: UUID
     email: str
 
@@ -118,7 +122,7 @@ class SystemUser2(UserOut):
     password: str
 
 # TESTING MODELS
-class Labelled(BaseModel):
+class Labelled(OurBaseModel):
     name:str = Field(...)
     value:str = Field(...)
     avatar:str = Field(...)
@@ -128,17 +132,19 @@ class Assigned(Labelled):
     name:str = Field(...)
     value:str = Field(...)
     
-class Post(BaseModel):
-    title:str = Field(...)
-    description:str = Field(...)
-    postedBy: Optional[User]
-    imageURL: str = Field(...)
-    imageTitle: str = Field(...)
-    date: str = Field(...)
+class Post(OurBaseModel):
+    title:str
+    description:str
+    postedBy: User
+    imageURL: str
+    imageTitle: str
+    date: str
     assigned:Optional[Assigned]
     labelled:Optional[Labelled]
-    profilePic:str = Field(...)
+    profilePic:str
 
+class PostsOut(Post):
+    result: List[Post]
 
 
 

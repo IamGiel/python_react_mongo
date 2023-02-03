@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, Request, Response, HTTPException, status, D
 from typing import Union
 from fastapi.encoders import jsonable_encoder
 from typing import List
-from models.models import User, SystemUser, TokenSchema, Post
+from models.models import User, SystemUser, TokenSchema, Post, PostsOut
 from fastapi_jwt_auth import AuthJWT
 from datetime import datetime, timedelta
 
@@ -13,6 +13,10 @@ from uuid import uuid4
 
 from config.database import ATLAS
 from bson.json_util import loads, dumps
+
+from bson.objectid import ObjectId
+import pydantic
+pydantic.json.ENCODERS_BY_TYPE[ObjectId]=str
 
 authroute = APIRouter(
     prefix="/user-auth",
@@ -150,13 +154,13 @@ def update_user_info(email:str, current_user: int = Depends(get_current_user), u
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User test with email: {email} not found")
 
 # ========== TEST POST ROUTES ========== #
-@authroute.get('/all-post', response_description="get users", response_model=List[Post])
+@authroute.get('/all-post', response_description="get posts")
 async def get_all_posts(request: Request, current_user: int = Depends(get_current_user), accesstoken = Depends(security)):
-    list_of_posts =list(ATLAS.instagram["posts"].find(limit=100))
+    list_of_posts =list(ATLAS.instagram["posts"].find({}, {'ObjectId': False}))
     print(f"current_user 🐍 {current_user}")
     print(f"list_of_users =======  {list_of_posts}")
     print(f"type list_of_posts {type(list_of_posts)}")
     if list_of_posts:
-        return loads(list_of_posts)
+        return list_of_posts
     else:
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Cannot get list of posts")
