@@ -1,19 +1,9 @@
-from flask import Flask
-from fastapi import Depends, FastAPI, Request, Depends
-from fastapi.security import OAuth2PasswordRequestForm
-
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from pymongo import MongoClient
-from dotenv import load_dotenv, find_dotenv
-
-# from config.database import stopDB, startDB
-
-import os
-import pprint
-import certifi
 
 from routers.routes import router as book_router
 from routers.authRoutes import authroute as userAuth_router
+from routers.postRoutes import postRoute as posts_router
 
 from config.database import Settings
 from fastapi_jwt_auth.exceptions import AuthJWTException
@@ -42,4 +32,4 @@ def shutdown_db_client():
     
 app.include_router(book_router)
 app.include_router(userAuth_router)
-
+app.include_router(posts_router)
