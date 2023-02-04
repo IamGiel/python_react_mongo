@@ -135,7 +135,7 @@ class Assigned(Labelled):
 class Post(OurBaseModel):
     title:str
     description:str
-    postedBy: User
+    postedBy: dict = {"data":"data"}
     imageURL: str
     imageTitle: str
     date: str

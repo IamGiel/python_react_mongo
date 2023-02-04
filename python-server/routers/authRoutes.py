@@ -4,8 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from typing import List
 from models.models import User, SystemUser, TokenSchema, Post, PostsOut
 from fastapi_jwt_auth import AuthJWT
-from datetime import datetime, timedelta
-
+from datetime import datetime, date, time, timezone
 from fastapi.security import OAuth2PasswordRequestForm, HTTPBearer
 
 from utils.utils import get_hashed_password, verify_password, create_access_token, create_refresh_token, get_current_user
@@ -164,3 +163,40 @@ async def get_all_posts(request: Request, current_user: int = Depends(get_curren
         return list_of_posts
     else:
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Cannot get list of posts")
+      
+@authroute.post('/create-post', response_description="get posts", response_model=Post)
+async def create_post(post: Post, current_user: int = Depends(get_current_user), accesstoken = Depends(security)):
+  print(f"the post\n {post}")
+  
+  post.date = f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')}"
+    
+  user_ref = eval(current_user["userObj"])["email"]
+  print(f"this is user ref {user_ref}")
+  
+  valid_user = ATLAS.instagram["users"].find_one(
+    {"email":user_ref}
+  )
+  
+  
+  
+  print(f"post ==============  {valid_user}")
+  
+  # remove password reference
+  valid_user["password"] = None
+  valid_user["passwordConfirm"] = None
+  
+  if valid_user is not None:
+    # insert
+    post.postedBy = valid_user
+    new_post =  ATLAS.instagram["posts"].insert_one(post.dict())
+    created_post = ATLAS.instagram["posts"].find_one(
+        {"_id": new_post.inserted_id}
+    )
+    return created_post
+  else:
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Failed to create post")
+ 
+  
+  # post.postedBy = valid_user
+  # return post
+   
