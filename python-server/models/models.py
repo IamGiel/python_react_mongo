@@ -122,15 +122,14 @@ class SystemUser2(UserOut):
     password: str
 
 # TESTING MODELS
-class Labelled(OurBaseModel):
+
+class Assigned(OurBaseModel):
     name:str = Field(...)
     value:str = Field(...)
+    
+class Labelled(Assigned):
     avatar:str = Field(...)
-
-
-class Assigned(Labelled):
-    name:str = Field(...)
-    value:str = Field(...)
+   
     
 class Post(OurBaseModel):
     title:str
@@ -142,6 +141,8 @@ class Post(OurBaseModel):
     assigned:Optional[Assigned]
     labelled:Optional[Labelled]
     profilePic:str
+    created_at:Optional[str]
+    updated_at:Optional[str]
 
 class PostsOut(Post):
     result: List[Post]

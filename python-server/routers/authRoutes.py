@@ -48,7 +48,7 @@ def register_user(user: User = Body(...)):
     user["password"] = get_hashed_password(user["password"])
     user["passwordConfirm"] = user["password"]
     user["verified"] = False
-    user["created_at"] = f"{datetime.utcnow()}"
+    user["created_at"] = f"{datetime.now().astimezone().isoformat()}"
     user["updated_at"] = user["created_at"]
     
     
@@ -132,7 +132,7 @@ def update_user_info(email:str, current_user: int = Depends(get_current_user), u
     # print(f"current user value: {current_user}")
     user_payload = jsonable_encoder(user_payload)
     # user_payload = {k: v for k, v in user_payload.dict().items() if v is not None}
-    user_payload["updated_at"] = f"{datetime.utcnow()}"
+    user_payload["updated_at"] = f"{datetime.now().astimezone().isoformat()}"
     user_payload["password"] = get_hashed_password(user_payload["password"])
     user_payload["passwordConfirm"] = user_payload["password"]
     
@@ -148,6 +148,5 @@ def update_user_info(email:str, current_user: int = Depends(get_current_user), u
     
     if (existing_user := ATLAS.instagram["users"].find_one({"email": email})) is not None:
         raise HTTPException(status_code=status.HTTP_202_ACCEPTED, detail=f"User details updated: \n {existing_user}")
-        return existing_user
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User test with email: {email} not found")
