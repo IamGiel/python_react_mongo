@@ -68,8 +68,6 @@ async def edit_post(_id: str, post_form: Post, current_user: int = Depends(get_c
                 id_to_print = labels
         raise HTTPException(status_code=status.HTTP_202_ACCEPTED, detail=f"updated post with id {id_to_print}")
 
-
-
 @postRoute.get('/all-post', response_description="get posts")
 async def get_all_posts(request: Request, current_user: int = Depends(get_current_user), accesstoken=Depends(security)):
     list_of_posts = list(
@@ -82,7 +80,6 @@ async def get_all_posts(request: Request, current_user: int = Depends(get_curren
     else:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY, detail="Cannot get list of posts")
-
 
 @postRoute.post('/create-post', response_description="get posts", response_model=Post)
 async def create_post(post: Post, current_user: int = Depends(get_current_user), accesstoken=Depends(security)):
@@ -116,56 +113,12 @@ async def create_post(post: Post, current_user: int = Depends(get_current_user),
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Failed to create post")
 
-    # title:{
-    #   type:String,
-    #   required:true
-    # },
-    # description:{
-    #   type:String,
-    #   required:true
-    # },
-    # postedBy:{
-    #   type:ObjectId,
-    #   ref:'User'
-    # },
-    # imageURL:{
-    #   type:String,
-    #   default:'No photo yet'
-    # },
-    # imageTitle:{
-    #   type:String,
-    #   default:'No photo yet'
-    # },
-    # date:{
-    #   type:String,
-    #   required:true
-    # },
-    # assigned:{
-    #   name:{
-    #     type:String,
-    #     required:true
-    #   },
-    #   value:{
-    #     type:String,
-    #     required:true
-    #   },
-    #   avatar:{
-    #     type:String,
-    #     required:true
-    #   },
+@postRoute.delete('/delete-post-by-id/{_id}', response_description="Delete a post")
+async def delete_a_post(_id:str, current_user:int = Depends(get_current_user), accesstoken=Depends(security)):
+  delete_result = ATLAS.instagram["posts"].delete_one({"_id": ObjectId(_id)})
 
-    # },
-    # labelled:{
-    #   name:{
-    #     type:String,
-    #     required:true
-    #   },
-    #   value:{
-    #     type:String,
-    #     required:true
-    #   },
-    # },
-    # profilePic:{
-    #   type:String,
-    #   required:true
-    # }
+  if delete_result.deleted_count == 1:
+    return f"Deleted a post with ID {_id}"
+
+
+  raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with ID {_id} not found")
