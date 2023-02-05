@@ -1,10 +1,13 @@
-TODOS: 
+# BACKLOG : 
+
+FRONT:
 
 1. Restrict screens without authentication
 2. Display data in Home page (all posts) if user is authenticated
-3. Ability to create post in dashboard
-4. Keep the user token, so that a refresh wont logout user
-5. error route /error -> show error state
+
+BACK:
+1. Allow only owners of post to delete their post <--
+2. Allow only admin can delete any posts <--
 
 ### To run (backend):
 
@@ -30,10 +33,10 @@ TODOS:
         
     ```
 
-3. `pip install -r requirements.txt` `pip-chill > requirements.txt`
+3. `pip install -r requirements.txt` or `pip-chill > requirements.txt`
 4. (should install all dependencies)
 
-### To run (client):
+### To run (FRONTEND):
 
 1. cd client
 2. `npm install` 
