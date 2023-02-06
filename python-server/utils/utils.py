@@ -5,6 +5,8 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 import os
 from passlib.context import CryptContext
+
+from models.models import User
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
@@ -62,12 +64,20 @@ def verify_access_token(token: str, credentials_exception):
 
     return token_data
 
-
 def get_current_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                                          detail=f"Could not validate credentials", headers={"WWW-Authenticate": "Bearer"})
+  credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                        detail=f"Could not validate credentials", headers={"WWW-Authenticate": "Bearer"})
 
-    token = verify_access_token(token, credentials_exception)
-    print(f"returning a token 🪙 ========= {token}")
+  token = verify_access_token(token, credentials_exception)
+  print(f"returning a token 🪙 ========= {token}")
 
-    return token
+  return token
+
+def printOut(item):
+  out = {
+    "item":item,
+    "itemType":type(item)
+    
+  }
+  print('method printer 🖨️')
+  return out

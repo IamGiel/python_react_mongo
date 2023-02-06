@@ -75,11 +75,15 @@ async def sign_in_user(response: Response, form_data: OAuth2PasswordRequestForm 
         print(f"user is NOT authenticated!")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Please check user credentials")
 
-    print(f"user is authenticated! {user['email']}")
+    print(f"user is authenticated! ✅ {user}")
+    
+    user["password"] = None
+    user["passwordConfirm"] = None
+
     # username = dumps(user['email'])
-    username = dumps({"email":user['email']})
-    accTok =  create_access_token(data={"userObj":username})
-    refTok = create_refresh_token(data={"userObj":username})
+    user_details = dumps({"user":user})
+    accTok =  create_access_token(data={"userObj":user_details})
+    refTok = create_refresh_token(data={"userObj":user_details})
     # accTok =  create_access_token(data={"email":user['email']})
     # refTok = create_refresh_token(data={"email":user['email']})
     try:

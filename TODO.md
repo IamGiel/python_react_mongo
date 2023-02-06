@@ -6,8 +6,10 @@ FRONT:
 2. Display data in Home page (all posts) if user is authenticated
 
 BACK:
-1. Allow only owners of post to delete their post <--
-2. Allow only admin can delete any posts <--
+1. Allow only owners of post to update their OWN post - done ✅
+2. Allow only admin ability to update ANY post <--
+3. Allow only owner of post to delete their OWN post
+4. Allow only admin can delete ANY posts <--
 
 ### To run (backend):
 

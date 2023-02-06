@@ -1,0 +1,12 @@
+{
+  "_id": {"$oid": "63bc8b6c06ea28b5aac01c50"}, 
+  "name": "Admin Gel", 
+  "email": "lfagel84@gmail.com", 
+  "password": "None", 
+  "imageUrl": "http: //res.cloudinary.com/gelcloudinary/image/upload/v1673300842/qw25ts6zhpnrl8wwfsoh.jpg", 
+  "created_at": "2023-01-28T23:21:08.799Z", 
+  "updated_at": "2023-02-02 18:49:00.235385", 
+  "verified": "False", 
+  "passwordConfirm": "None", 
+  "roles": ["admin"]
+}   
