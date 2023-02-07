@@ -35,17 +35,12 @@ async def edit_post(_id: str, post_form: Post, current_user: User = Depends(get_
     valid_user = ATLAS.instagram["users"].find_one(
         {"email": user_ref['email']}
     )
-    is_admin = any('admin' in s for s in user_ref["roles"])
-    print(f"is admin user ? {is_admin}")
-     
     selected_post = ATLAS.instagram["posts"].find_one({"_id": ObjectId(_id)})
     # if current user is not owner of the post, dont allow an update
-    if user_ref['email'] != selected_post["postedBy"]["email"] and is_admin == False:
+    if user_ref['email'] != selected_post["postedBy"]["email"]:
       print(f"ITS NOT OK UPDATE EMAIL ❌❌❌")
       raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"User with email: {selected_post['_id']} cannot update this document")
     
-     
-      
     print(f"ITS OK TO UPDATE EMAIL ✅✅✅")
     selected_post["title"] = post_form.title
     selected_post["postedBy"] = valid_user
@@ -69,7 +64,6 @@ async def edit_post(_id: str, post_form: Post, current_user: User = Depends(get_
     if (existing_post := ATLAS.instagram["posts"].find_one({"_id": ObjectId(_id)})) is not None:
         id_to_print = None
         for labels in existing_post:
-            print(labels)
             if labels == "_id":
                 labels = f"{ObjectId(_id)}"
                 id_to_print = labels
@@ -91,15 +85,14 @@ async def get_all_posts(request: Request, current_user: User = Depends(get_curre
 @postRoute.post('/create-post', response_description="get posts", response_model=Post)
 async def create_post(post: Post, current_user: int = Depends(get_current_user), accesstoken=Depends(security)):
 
-    print(f"this is the submitted post of type POST\n {post}")
     user_ref:User = json.loads(current_user['userObj'])['user']
-    print(f"user_ref , checks user exists and gets the user email {user_ref['email']}")
 
     valid_user = ATLAS.instagram["users"].find_one(
         {"email": user_ref['email']}
     )
-    print(
-        f"valid_user, from user_ref, we get the - user details from mongodb  {valid_user}")
+    
+    valid_user.update({"password":""})
+    valid_user.update({"passwordConfirm":""})
 
     if valid_user is not None:
         # insert
@@ -107,8 +100,8 @@ async def create_post(post: Post, current_user: int = Depends(get_current_user),
         post.created_at = f"{datetime.now().astimezone().isoformat()}"
         post.updated_at = f"{datetime.now().astimezone().isoformat()}"
         # remove password from the this calls returned response
-        valid_user["password"] = None
-        valid_user["passwordConfirm"] = None
+        # valid_user["password"] = None
+        # valid_user["passwordConfirm"] = None
         new_post = ATLAS.instagram["posts"].insert_one(post.dict())
         created_post = ATLAS.instagram["posts"].find_one(
             {"_id": new_post.inserted_id}
@@ -121,6 +114,22 @@ async def create_post(post: Post, current_user: int = Depends(get_current_user),
 
 @postRoute.delete('/delete-post-by-id/{_id}', response_description="Delete a post")
 async def delete_a_post(_id:str, current_user:int = Depends(get_current_user), accesstoken=Depends(security)):
+  
+  user_ref:User = json.loads(current_user['userObj'])['user']
+  
+  is_admin = any('admin' in s for s in user_ref["roles"])
+  print(f"is admin user ? {is_admin}")
+  
+  post = ATLAS.instagram["posts"].find_one({"_id": ObjectId(_id)})
+  
+  post_owners_email = post['postedBy']['email']
+  is_owner = user_ref["email"] == post_owners_email
+  
+
+  if is_admin != True and is_owner != True:
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"User with id: {user_ref['_id']} is Not allowed to delete this post")
+
+  #  delete action here
   delete_result = ATLAS.instagram["posts"].delete_one({"_id": ObjectId(_id)})
 
   if delete_result.deleted_count == 1:
@@ -128,5 +137,3 @@ async def delete_a_post(_id:str, current_user:int = Depends(get_current_user), a
 
 
   raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with ID {_id} not found")
-
-
