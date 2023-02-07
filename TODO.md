@@ -6,12 +6,17 @@ FRONT:
 2. Display data in Home page (all posts) if user is authenticated
 
 BACK:
+
 1. Allow only owners of post to update and delete their OWN post - done ✅
   
     ```test: check if JJ can change title on fakes post```
-2. Allow only admin ability to DELETE ALL post <--
+2. Allow only admin ability to DELETE ALL post - done ✅
 
-    ```test: check if admin can delete any users post``` - done ✅
+    ```test: check if admin can delete any users post``` 
+
+3. Show only users post "My posts"
+
+    ```Test: login, verify I can check list of my posts only```
 
 ### To run (backend):
 
