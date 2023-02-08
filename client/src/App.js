@@ -7,6 +7,8 @@ import { Signin } from "./screens/Signin";
 import Counter from "./components/Counter";
 import { useSelector } from "react-redux";
 import {Protect} from "./Protect" 
+import { useEffect } from "react";
+import { store } from "./app/store";
 
 const Routing = (isloggedInStatus) => {
   return (
@@ -29,7 +31,7 @@ const Routing = (isloggedInStatus) => {
 function App () {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
-
+  console.log("user in appjs ", user)
   const getNavbarAction = (routeTo) => {
     navigate(`/${routeTo}`);
   };
@@ -42,7 +44,7 @@ function App () {
       </div>
 
       <div className="routing-container m-[12px] p-[12px]">
-        <Routing isloggedInStatus={user.isLoggedIn} />
+        <Routing isloggedInStatus={user.data.isLoggedIn} />
       </div>
     </div>
   );

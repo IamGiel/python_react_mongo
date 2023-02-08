@@ -26,7 +26,7 @@ export const Navbar = (props) => {
   useEffect(() => {
     console.log("logging user in navbar ", user);
     console.log("createModal in navbar ", createModalStatus);
-    setLoginStatus(user.isLoggedIn);
+    setLoginStatus(user.data.isLoggedin ? user.data.isLoggedin : false);
   }, [user]);
   
 
@@ -54,6 +54,12 @@ export const Navbar = (props) => {
       return `bg-red-500`;
     }
   };
+
+  const onLogout = () => {
+    setLoginStatus(false)
+    localStorage.clear()
+    dispatch(signoutState())
+  }
   
   
 
@@ -169,7 +175,7 @@ export const Navbar = (props) => {
                   <div className="flex gap-[10px]">
                     <div className="name-container flex">
                       <span className="text-white hidden lg:block">
-                        {user.status} {user.user.name}
+                        {user.status} {user.data?.name}
                       </span>
                     </div>
                     {!loginStatus && (
@@ -187,7 +193,7 @@ export const Navbar = (props) => {
 
                         <img
                           className="h-8 w-8 rounded-full"
-                          src={user.user.imageUrl}
+                          src={user.data.imageUrl}
                           alt=""
                         />
                       </Menu.Button>
@@ -232,7 +238,7 @@ export const Navbar = (props) => {
                       <Menu.Item>
                         {({ active }) => (
                           <Link
-                            onClick={() => dispatch(signoutState())}
+                            onClick={() => onLogout()}
                             to={"/home"}
                             className={classNames(
                               active ? "bg-gray-100" : "",

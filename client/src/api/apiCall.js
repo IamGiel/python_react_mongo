@@ -3,8 +3,8 @@ import { API_PATH } from "./apiPaths";
 
 
 // Get all posts
-export const getAllPost = async () => {
-  return await callToBackend('GET', API_PATH.ALL_POSTS);
+export const getAllPost = async (headers) => {
+  return await callToBackend('GET', API_PATH.ALL_POSTS, null, null, headers);
 };
 
 // Get delete a post

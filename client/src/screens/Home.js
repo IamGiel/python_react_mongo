@@ -10,15 +10,17 @@ export const Home = () => {
   const reaction = useSelector((state)=> state.counter.status)
   const user = useSelector((state)=> state.user)
 
+  console.log("user in Home ",user)
+
   const [blogs, setBlogs] = useState([])
   const [loading, setLoading] = useState(false)
 
   // const dispatch = useDispatch();
   useEffect(() => {
-    console.log('user state in Home ', user)
-  }, [user])
+    console.log('user state in Home ', user, count, user.isLoggedin)
+  }, [user, count])
   useEffect(() => {    
-    if(user.isLoggedIn){
+    if(user.data.isLoggedin){
       getBlogs()
     }
     
@@ -27,7 +29,8 @@ export const Home = () => {
   const getBlogs = () => {
     setLoading(true)
     setTimeout(() => {
-      getAllPost()
+      const headers = {"Authorization":`Bearer ${user.data.access_token}`}
+      getAllPost(headers)
       .then(res=> {
         
         setBlogs([...res])
@@ -44,12 +47,12 @@ export const Home = () => {
   return (
     <>
       {/* <pre>{JSON.stringify(blogs)}</pre> */}
-      {user.isLoggedIn && 
+      {user.data.isLoggedin && 
         <div className='home-container flex flex-col gap-[12px] border border-[3px] rounded-[12px] min-h-[450px] w-[99%] p-[12px] m-[12px]'>
           <BlogV1 data={blogs} hasLoaded={loading}/>
       </div>
       }
-      {!user.isLoggedIn && 
+      {!user.data.isLoggedin && 
         <div className='home-container flex flex-col gap-[12px] border border-[3px] rounded-[12px] min-h-[450px] w-[99%] p-[12px] m-[12px]'>
           <Preview />
       </div>

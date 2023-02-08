@@ -6,46 +6,42 @@ const greeting = {
     error:'Oy! Something went wrong on the login process.. ',
 }
 const initialState = {
-    "user": {
-        "_id": null,
-        "name":null,
-        "email":null,
-        "password":null,
-        "imageUrl":null,
-        "__v":null
-    },
-    "status":greeting.normal,
-    "isLoggedIn":false
+  "data":{
+    "access_token": null,
+    "refresh_token": null,
+    "name": null,
+    "email": null,
+    "password": null,
+    "imageUrl": null,
+    "isLoggedin": false,
+  },
+  "status":greeting.normal
 }
 
 export const authSlice = createSlice({
     name:'userAuthSlice',
     initialState,
     reducers: {
-        signedInSuccessState: (state, payload) => {
-            console.log("dispatching user auth payload ", payload)
-            // console.log("dispatching user state ", state)
-            state.user = payload.payload.user
+        signedInSuccessState: (state, user) => {
+            console.log("dispatching user auth payload ", user.payload.detail)
+            state.data = user.payload.detail
             state.status = greeting.login
-            state.isLoggedIn = payload.payload.isLoggedin
         },
         signedInErrorState: (state, payload) => {
-            state.user  = null
+            state  = null
             state.status = greeting.error
         },
         signoutState: (state) => {
-           state.user = {
-            "user": {
-                "_id": null,
-                "name":null,
-                "email":null,
-                "password":null,
-                "imageUrl":null,
-                "__v":null
-            }
-           }
-           state.status = greeting.logout
-           state.isLoggedIn = false
+           state.data = {
+            "access_token": null,
+            "refresh_token": null,
+            "name": null,
+            "email": null,
+            "password": null,
+            "imageUrl": null,
+            "isLoggedin": false
+          }
+          state.status = greeting.logout
         }
     }
 })

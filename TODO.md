@@ -52,6 +52,7 @@ BACK:
 
     `pip install -r requirements.txt`
 4. (should install all dependencies)
+5. python -m uvicorn main:app --reload
 
 ### To run (FRONTEND):
 

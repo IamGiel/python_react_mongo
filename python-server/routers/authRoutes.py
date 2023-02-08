@@ -63,14 +63,12 @@ def register_user(user: User = Body(...)):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="User is not created")
 
 @authroute.post("/signin", response_description="Signin a new user", status_code=status.HTTP_201_CREATED, response_model=SystemUser)
-async def sign_in_user(response: Response, form_data: OAuth2PasswordRequestForm = Depends()):
+async def sign_in_user(request: Request, response: Response, form_data: OAuth2PasswordRequestForm = Depends()):
     user = ATLAS.instagram['users'].find_one(
         {"email":form_data.username}
     )
     
     is_matching_password = verify_password(form_data.password, user["password"])
-    print(f"form data {form_data}")
-    print(f"user from ATLASDB {user}")
     if not is_matching_password:
         print(f"user is NOT authenticated!")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Please check user credentials")
@@ -86,22 +84,26 @@ async def sign_in_user(response: Response, form_data: OAuth2PasswordRequestForm 
     refTok = create_refresh_token(data={"userObj":user_details})
     # accTok =  create_access_token(data={"email":user['email']})
     # refTok = create_refresh_token(data={"email":user['email']})
-    try:
-        response.set_cookie('access_token',accTok)
-        response.set_cookie('refresh_token',refTok)
-        response.set_cookie('is_loggedin',True)
-    except Exception as err:
-        print(f'Other error occurred: {err}')
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"{err}")
-    else:
-
-        return {
-            "access_token": accTok,
-            "refresh_token": refTok,
-            "name":user["name"],
-            "email":user["email"],
-            "password":""
-        }
+    response.set_cookie('access_token',accTok)
+    response.set_cookie('refresh_token',refTok)
+    response.set_cookie('is_loggedin',True)
+    payload = {
+        "access_token": accTok,
+        "refresh_token": refTok,
+        "name":user["name"],
+        "email":user["email"],
+        "password":"",
+        "imageUrl":user["imageUrl"],
+        "isLoggedin":True
+    }
+    raise HTTPException(status_code=status.HTTP_202_ACCEPTED, detail=payload)
+    # return {
+    #     "access_token": accTok,
+    #     "refresh_token": refTok,
+    #     "name":user["name"],
+    #     "email":user["email"],
+    #     "password":""
+    # }
 
 @authroute.post("/refresh", response_description="Refresh token", status_code=status.HTTP_201_CREATED)
 def refresh_token(response: Response,current_user: int = Depends(get_current_user), accesstoken = Depends(security)):
@@ -125,7 +127,16 @@ def logout(response: Response, current_user: int = Depends(get_current_user), ac
     response.delete_cookie('refresh_token')
     response.delete_cookie('access_token')
     response.set_cookie('is_loggedin', False, -1)
-    return {'status': 'success'}
+    payload = {
+        "access_token": None,
+        "refresh_token": None,
+        "name":None,
+        "email":None,
+        "password":None,
+        "imageUrl":None,
+        "isLoggedin":False
+    }
+    raise HTTPException(status_code=status.HTTP_202_ACCEPTED, detail=payload)
 
 @authroute.put("/user-account-by/{email}", response_description="Update a new user", status_code=status.HTTP_201_CREATED, response_model=User)
 def update_user_info(email:str, current_user: int = Depends(get_current_user), user_payload: User = Body(...), accesstoken = Depends(security)):
